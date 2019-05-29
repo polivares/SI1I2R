@@ -4,17 +4,20 @@ __email__ = "patricio.olivaresr@usm.cl"
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate as spi
+import peakutils as pk
 
 """
     SIR class
 """
 class SIR:
     def __init__(self, SIR0, params, t_sim):
-        self.params = params
-        self.SIR0 = SIR0
-        self.t_sim = t_sim
-        self.SIR_Res = None
+        self.SIR0 = SIR0  # Initial conditions
+        self.params = params # SIR configuration parameters: beta, delta
+        self.t_sim = t_sim # Time of simulation
+        self.SIR_Res = None # Time Series result of simulation
+        self.peakpos = None
 
+    # SIR equations
     def __SIR_eqs(self, SIR0, t, params):
         # Initial conditions
         Si = SIR0[0]
@@ -34,30 +37,41 @@ class SIR:
 
         return SIR_S, SIR_I, SIR_R
 
+    # Configure SIR model with initial conditions, parameters and time
     def __modelSIR(self, SIR0, t, params):
         SIR_Res = spi.odeint(self.__SIR_eqs, SIR0, t, args=(params,))
         return SIR_Res
 
+    # Run simulation
     def runSim(self):
         self.SIR_Res = self.__modelSIR(self.SIR0, self.t_sim, self.params)
+        self.peakpos = pk.indexes(self.SIR_Res)
 
+    # Get Time Series Result
     def getResult(self):
-        return self.SIR_Res
+        return self.SIR_Res, self.peakpos
 
-    def plotSim(self):
+    # Plot time series result
+    def plotSeries(self):
         plt.plot(self.t_sim, self.SIR_Res[:, 1], '-r')
         plt.show()
 
 
+"""
+    SIIR class
+"""
 class SIIR:
     def __init__(self, SIIR0, params, t_sim):
-        self.SIIR0 = SIIR0
-        self.params = params
-        self.t_sim = t_sim
-        self.SIIR_Res = None
-        self.dis1 = None
-        self.dis2 = None
+        self.SIIR0 = SIIR0 # Initial conditions
+        self.params = params # SIIR configuration parameters: beta1, beta2, delta1, delta2, beta1prime, beta2prime, delta1prime, delta2prime
+        self.t_sim = t_sim # Time of simulation
+        self.SIIR_Res = None # Results of Simulation
+        self.dis1 = None # Time series result of disease one
+        self.dis2 = None # Time series result of disease two
+        self.peak1pos = None
+        self.peak2pos = None
 
+    # SIIR equations
     def __SIIR_eqs(self, SIIR0, t, params):
         SSi = SIIR0[0]
         ISi = SIIR0[1]
@@ -85,29 +99,65 @@ class SIIR:
 
         return SIIR_SS, SIIR_IS, SIIR_SI, SIIR_II, SIIR_RS, SIIR_SR, SIIR_RI, SIIR_IR, SIIR_RR
 
+    # Configure SIIR model with initial conditions, parameters and time
     def __modelSIIR(self, SIIR0, t, params):
         SIIR_Res = spi.odeint(self.__SIIR_eqs, SIIR0, t, args=(params,))
         return SIIR_Res
 
+    # Run simulation
     def runSim(self):
         self.SIIR_Res = self.__modelSIIR(self.SIIR0, self.t_sim, self.params)
         self.dis1 = self.SIIR_Res[:, 1] + self.SIIR_Res[:, 3] + self.SIIR_Res[:, 7]
         self.dis2 = self.SIIR_Res[:, 2] + self.SIIR_Res[:, 3] + self.SIIR_Res[:, 6]
+        self.peak1pos = pk.indexes(self.dis1)
+        self.peak2pos = pk.indexes(self.dis2)
 
+    # Get Time Series of both diseases (whole result)
     def getResult(self):
         return self.SIIR_Res
 
+    # Get Time Series of Disease one
     def getDisease1(self):
-        return self.dis1
+        return self.dis1, self.peak1pos
 
+    # Get Time Series of Disease two
     def getDisease2(self):
-        return self.dis2
+        return self.dis2, self.peak2pos
 
-    def plotSim(self):
+    # Plot both Series
+    def plotSeries(self):
         fig, ax = plt.subplots(1, 2)
         ax[0].plot(self.t_sim, self.dis1, '-r')
         ax[1].plot(self.t_sim, self.dis2, '-b')
         plt.show()
+
+    def plotDisease1Series(self, peak=True, savefig=False):
+        fig, ax = plt.subplots()
+        ax.plot(self.t_sim, self.dis1, '-r')
+        legends = ["Disease 1"]
+        if peak:
+            ax.plot(self.t_sim[self.peak1pos], self.dis1[self.peak1pos], '*b')
+            legends.append("Peak(s) Position")
+        ax.legend(legends)
+        plt.suptitle("Disease 1")
+        if savefig:
+            fig.savefig("images/disease1.svg", format='svg')
+        else:
+            plt.show()
+
+    def plotDisease2Series(self, peak=True, savefig=False):
+        fig, ax = plt.subplots()
+        ax.plot(self.t_sim, self.dis2, '-r')
+        legends = ["Disease 2"]
+        if peak:
+            ax.plot(self.t_sim[self.peak2pos], self.dis2[self.peak2pos], '*b')
+            legends.append("Peak(s) Position")
+        ax.legend(legends)
+        plt.suptitle("Disease 2")
+        if savefig:
+            fig.savefig("images/disease2.svg", format='svg')
+        else:
+            plt.show()
 
 
 def testSIR():
@@ -135,8 +185,9 @@ def testSIR():
 
     sirSim = SIR(SIR0, params, t_sim)
     sirSim.runSim()
-    sirSim.plotSim()
+    sirSim.plotSeries()
     #print(sirSim.getResult())
+
 
 def testSIIR():
     beta1 = 14.3553504
@@ -165,6 +216,8 @@ def testSIIR():
 
     siirSim = SIIR(SIIR0, params, t_sim)
     siirSim.runSim()
-    siirSim.plotSim()
-    #print(siirSim.getResult())
+    #siirSim.plotSeries()
+    siirSim.plotDisease1Series(savefig=True)
+    siirSim.plotDisease2Series(savefig=True)
 
+testSIIR()
