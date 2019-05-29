@@ -104,7 +104,7 @@ class SIIR:
         return self.dis2
 
     def plotSim(self):
-        fig, ax = plt.subplots(1,2)
+        fig, ax = plt.subplots(1, 2)
         ax[0].plot(self.t_sim, self.dis1, '-r')
         ax[1].plot(self.t_sim, self.dis2, '-b')
         plt.show()
@@ -168,5 +168,3 @@ def testSIIR():
     siirSim.plotSim()
     #print(siirSim.getResult())
 
-
-testSIIR()
