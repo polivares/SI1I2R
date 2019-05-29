@@ -13,7 +13,7 @@ SIIR0[2] = 7
 SIIR0[0] = N - np.sum(SIIR0[1:8])
 
 t_start = 0
-t_end = 12
+t_end = 15
 n_int = 10000
 
 t_sim = np.linspace(t_start, t_end, n_int)
@@ -41,10 +41,14 @@ fig, ax = plt.subplots(1, 2)
 ax[0].plot(t_sim, siirSim_orig.getDisease1(), '-r')
 ax[0].plot(t_sim, siirSim_1.getDisease1(), '-g')
 ax[0].plot(t_sim, siirSim_2.getDisease1(), '-b')
+ax[0].legend(('Original disease', 'Bigger beta1prime', 'Smaller beta1prime'))
 
 ax[1].plot(t_sim, siirSim_orig.getDisease2(), '-r')
 ax[1].plot(t_sim, siirSim_1.getDisease2(), '-g')
 ax[1].plot(t_sim, siirSim_2.getDisease2(), '-b')
+ax[1].legend(('Original disease', 'Bigger beta1prime', 'Smaller beta1prime'))
+
+plt.suptitle("Changes disease 1")
 
 plt.show()
 
@@ -66,9 +70,13 @@ fig, ax = plt.subplots(1, 2)
 ax[0].plot(t_sim, siirSim_orig.getDisease1(), '-r')
 ax[0].plot(t_sim, siirSim_1.getDisease1(), '-g')
 ax[0].plot(t_sim, siirSim_2.getDisease1(), '-b')
+ax[0].legend(('Original disease','Bigger beta2prime', 'Smaller beta2prime'))
 
 ax[1].plot(t_sim, siirSim_orig.getDisease2(), '-r')
 ax[1].plot(t_sim, siirSim_1.getDisease2(), '-g')
 ax[1].plot(t_sim, siirSim_2.getDisease2(), '-b')
+ax[1].legend(('Original disease', 'Bigger beta2prime', 'Smaller beta2prime'))
+
+plt.suptitle("Changes disease 2")
 
 plt.show()
