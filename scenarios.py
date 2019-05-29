@@ -24,14 +24,15 @@ siirSim_orig = mdl.SIIR(SIIR0, params, t_sim)
 siirSim_orig.runSim()
 
 # Changes Disease 1
+
 params = [14.3553504, 206.18920775, 13.16275817, 206.04507902,
-          100, 222.29093379, 13.98388944, 154.4459061]
+          0, 222.29093379, 13.98388944, 154.4459061]
 
 siirSim_1 = mdl.SIIR(SIIR0, params, t_sim)
 siirSim_1.runSim()
 
 params = [14.3553504, 206.18920775, 13.16275817, 206.04507902,
-          0, 222.29093379, 13.98388944, 154.4459061]
+          100, 222.29093379, 13.98388944, 154.4459061]
 
 siirSim_2 = mdl.SIIR(SIIR0, params, t_sim)
 siirSim_2.runSim()
@@ -41,12 +42,12 @@ fig, ax = plt.subplots(1, 2)
 ax[0].plot(t_sim, siirSim_orig.getDisease1(), '-r')
 ax[0].plot(t_sim, siirSim_1.getDisease1(), '-g')
 ax[0].plot(t_sim, siirSim_2.getDisease1(), '-b')
-ax[0].legend(('Original disease', 'Bigger beta1prime', 'Smaller beta1prime'))
+ax[0].legend(('Original disease', 'Smaller beta1prime', 'Bigger beta1prime'))
 
 ax[1].plot(t_sim, siirSim_orig.getDisease2(), '-r')
 ax[1].plot(t_sim, siirSim_1.getDisease2(), '-g')
 ax[1].plot(t_sim, siirSim_2.getDisease2(), '-b')
-ax[1].legend(('Original disease', 'Bigger beta1prime', 'Smaller beta1prime'))
+ax[1].legend(('Original disease', 'Smaller beta1prime', 'Bigger beta1prime'))
 
 plt.suptitle("Changes disease 1")
 
@@ -70,12 +71,12 @@ fig, ax = plt.subplots(1, 2)
 ax[0].plot(t_sim, siirSim_orig.getDisease1(), '-r')
 ax[0].plot(t_sim, siirSim_1.getDisease1(), '-g')
 ax[0].plot(t_sim, siirSim_2.getDisease1(), '-b')
-ax[0].legend(('Original disease','Bigger beta2prime', 'Smaller beta2prime'))
+ax[0].legend(('Original disease','Smaller beta2prime', 'Bigger beta2prime'))
 
 ax[1].plot(t_sim, siirSim_orig.getDisease2(), '-r')
 ax[1].plot(t_sim, siirSim_1.getDisease2(), '-g')
 ax[1].plot(t_sim, siirSim_2.getDisease2(), '-b')
-ax[1].legend(('Original disease', 'Bigger beta2prime', 'Smaller beta2prime'))
+ax[1].legend(('Original disease', 'Smaller beta2prime', 'Bigger beta2prime'))
 
 plt.suptitle("Changes disease 2")
 
