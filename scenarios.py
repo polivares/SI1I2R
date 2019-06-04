@@ -28,13 +28,13 @@ params = [14.3553504, 206.18920775, 13.16275817, 206.04507902,
           0, 222.29093379, 13.98388944, 154.4459061]
 
 siirSim_1 = mdl.SIIR(SIIR0, params, t_sim)
-siirSim_1.runSim()
+siirSim_1.runEvaluation()
 
 params = [14.3553504, 206.18920775, 13.16275817, 206.04507902,
           100, 222.29093379, 13.98388944, 154.4459061]
 
 siirSim_2 = mdl.SIIR(SIIR0, params, t_sim)
-siirSim_2.runSim()
+siirSim_2.runEvaluation()
 
 fig, ax = plt.subplots(1, 2)
 
@@ -57,13 +57,13 @@ params = [14.3553504, 206.18920775, 13.16275817, 206.04507902,
           14.51848543, 50, 13.98388944, 154.4459061]
 
 siirSim_1 = mdl.SIIR(SIIR0, params, t_sim)
-siirSim_1.runSim()
+siirSim_1.runEvaluation()
 
 params = [14.3553504, 206.18920775, 13.16275817, 206.04507902,
           14.51848543, 800, 13.98388944, 154.4459061]
 
 siirSim_2 = mdl.SIIR(SIIR0, params, t_sim)
-siirSim_2.runSim()
+siirSim_2.runEvaluation()
 
 fig, ax = plt.subplots(1, 2)
 

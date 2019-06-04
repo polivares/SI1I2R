@@ -6,19 +6,39 @@ import matplotlib.pyplot as plt
 import scipy.integrate as spi
 import peakutils as pk
 
-"""
-    SIR class
-"""
 class SIR:
+    """ SIR Class that run the original SIR model
+
+    Attributes:
+        SIR0 (list): Initial conditions for the SIR model.
+        params (list): Parameters for the SIR model. It includes the infection rate and recovery rate.
+        t_sim (list): List that includes the time range of the simulation.
+        SIR_Res (list): Saves the result of the running SIR model (time series) for the given conditions for all the states.
+        peakpos (list): Include the list position of all peaks of the time series result.
+
+    """
     def __init__(self, SIR0, params, t_sim):
-        self.SIR0 = SIR0  # Initial conditions
-        self.params = params # SIR configuration parameters: beta, delta
-        self.t_sim = t_sim # Time of simulation
-        self.SIR_Res = None # Time Series result of simulation
+        """
+
+        :param SIR0: Initial conditions for the SIR model.
+        :param params: Parameters for the SIR model. It includes the infection rate and recovery rate.
+        :param t_sim: List that includes the time range of the simulation.
+        """
+        self.SIR0 = SIR0
+        self.params = params
+        self.t_sim = t_sim
+        self.SIR_Res = None
         self.peakpos = None
 
-    # SIR equations
     def __SIR_eqs(self, SIR0, t, params):
+        """
+        Private method that include the SIR model equations
+        :param SIR0: Initial conditions for the SIR model.
+        :param t: List that includes the time range of the simulation.
+        :param params: Parameters for the SIR model. It includes the infection rate and recovery rate.
+        :return: The result for the Susceptible (SIR_S), Infected (SIR_I) and Recovery (SIR_R) states
+        """
+
         # Initial conditions
         Si = SIR0[0]
         Ii = SIR0[1]
@@ -31,36 +51,53 @@ class SIR:
         beta, delta = params
 
         # Equations definition of the model
-        SIR_S = - (beta * Si * Ii) / N
-        SIR_I = (beta * Si * Ii) / N - delta * Ii
-        SIR_R = delta * Ii
+        S = - (beta * Si * Ii) / N
+        I = (beta * Si * Ii) / N - delta * Ii
+        R = delta * Ii
 
-        return SIR_S, SIR_I, SIR_R
+        return S, I, R
 
     # Configure SIR model with initial conditions, parameters and time
     def __modelSIR(self, SIR0, t, params):
+        """
+        Private method that configure the SIR model with initial conditions, parameters and time.
+        :param SIR0: Initial conditions for the SIR model.
+        :param t: List that includes the time range of the simulation.
+        :param params: Parameters for the SIR model. It includes the infection rate and recovery rate.
+        :return: Final result of the evaluation using the SIR equations (SIR_Res)
+        """
         SIR_Res = spi.odeint(self.__SIR_eqs, SIR0, t, args=(params,))
         return SIR_Res
 
-    # Run simulation
-    def runSim(self):
+    def runEvaluation(self):
+        """
+        Run the evaluation of the model and saves the result on SIR_Res variable and the peak position of the infection
+        of the disease on peakpos variable.
+        :return: SIR_Res
+        """
         self.SIR_Res = self.__modelSIR(self.SIR0, self.t_sim, self.params)
-        self.peakpos = pk.indexes(self.SIR_Res)
+        self.peakpos = pk.indexes(self.SIR_Res[:, 1])
 
-    # Get Time Series Result
     def getResult(self):
+        """
+        Return the result of the evaluation (SIR_Res) and the peak position of the infection (peakpos)
+        :return: SIR_Res
+        """
         return self.SIR_Res, self.peakpos
 
     # Plot time series result
     def plotSeries(self):
+        """
+        Plot the time series of the infected state over time.
+        :return:
+        """
         plt.plot(self.t_sim, self.SIR_Res[:, 1], '-r')
         plt.show()
 
 
-"""
-    SIIR class
-"""
 class SIIR:
+    """ SIIR class
+    """
     def __init__(self, SIIR0, params, t_sim):
         self.SIIR0 = SIIR0 # Initial conditions
         self.params = params # SIIR configuration parameters: beta1, beta2, delta1, delta2, beta1prime, beta2prime, delta1prime, delta2prime
@@ -87,17 +124,17 @@ class SIIR:
 
         beta1, beta2, delta1, delta2, beta1prime, beta2prime, delta1prime, delta2prime = params
 
-        SIIR_SS = -SSi * beta1 * (ISi + IIi + IRi) / N - SSi * beta2 * (SIi + IIi + RIi) / N
-        SIIR_IS = SSi * beta1 * (ISi + IIi + IRi) / N - delta1 * ISi - ISi * beta2prime * (SIi + IIi + RIi) / N
-        SIIR_SI = SSi * beta2 * (SIi + IIi + RIi) / N - delta2 * SIi - SIi * beta1prime * (ISi + IIi + IRi) / N
-        SIIR_II = ISi * beta2prime * (SIi + IIi + RIi) / N + SIi * beta1prime * (ISi + IIi + IRi) / N - delta1prime * IIi - delta2prime * IIi
-        SIIR_RS = delta1 * ISi - RSi * beta2 * (SIi + IIi + RIi) / N
-        SIIR_SR = delta2 * SIi - SRi * beta1 * (ISi + IIi + IRi) / N
-        SIIR_RI = RSi * beta2 * (SIi + IIi + RIi) / N + delta1prime * IIi - delta2 * RIi
-        SIIR_IR = SRi * beta1 * (ISi + IIi + IRi) / N + delta2prime * IIi - delta1 * IRi
-        SIIR_RR = delta1 * IRi + delta2 * RIi
+        SS = -SSi * beta1 * (ISi + IIi + IRi) / N - SSi * beta2 * (SIi + IIi + RIi) / N
+        IS = SSi * beta1 * (ISi + IIi + IRi) / N - delta1 * ISi - ISi * beta2prime * (SIi + IIi + RIi) / N
+        SI = SSi * beta2 * (SIi + IIi + RIi) / N - delta2 * SIi - SIi * beta1prime * (ISi + IIi + IRi) / N
+        II = ISi * beta2prime * (SIi + IIi + RIi) / N + SIi * beta1prime * (ISi + IIi + IRi) / N - delta1prime * IIi - delta2prime * IIi
+        RS = delta1 * ISi - RSi * beta2 * (SIi + IIi + RIi) / N
+        SR = delta2 * SIi - SRi * beta1 * (ISi + IIi + IRi) / N
+        RI = RSi * beta2 * (SIi + IIi + RIi) / N + delta1prime * IIi - delta2 * RIi
+        IR = SRi * beta1 * (ISi + IIi + IRi) / N + delta2prime * IIi - delta1 * IRi
+        RR = delta1 * IRi + delta2 * RIi
 
-        return SIIR_SS, SIIR_IS, SIIR_SI, SIIR_II, SIIR_RS, SIIR_SR, SIIR_RI, SIIR_IR, SIIR_RR
+        return SS, IS, SI, II, RS, SR, RI, IR, RR
 
     # Configure SIIR model with initial conditions, parameters and time
     def __modelSIIR(self, SIIR0, t, params):
@@ -105,7 +142,7 @@ class SIIR:
         return SIIR_Res
 
     # Run simulation
-    def runSim(self):
+    def runEvaluation(self):
         self.SIIR_Res = self.__modelSIIR(self.SIIR0, self.t_sim, self.params)
         self.dis1 = self.SIIR_Res[:, 1] + self.SIIR_Res[:, 3] + self.SIIR_Res[:, 7]
         self.dis2 = self.SIIR_Res[:, 2] + self.SIIR_Res[:, 3] + self.SIIR_Res[:, 6]
@@ -184,8 +221,9 @@ def testSIR():
     #plt.show()
 
     sirSim = SIR(SIR0, params, t_sim)
-    sirSim.runSim()
+    sirSim.runEvaluation()
     sirSim.plotSeries()
+    print(t_sim[sirSim.getResult()[1]])
     #print(sirSim.getResult())
 
 
@@ -215,9 +253,9 @@ def testSIIR():
     SIIR0[0] = N - np.sum(SIIR0[1:8])
 
     siirSim = SIIR(SIIR0, params, t_sim)
-    siirSim.runSim()
+    siirSim.runEvaluation()
     #siirSim.plotSeries()
-    siirSim.plotDisease1Series(savefig=True)
-    siirSim.plotDisease2Series(savefig=True)
+    siirSim.plotDisease1Series(savefig=False)
+    siirSim.plotDisease2Series(savefig=False)
 
-testSIIR()
+#testSIIR()
