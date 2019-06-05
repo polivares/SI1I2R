@@ -13,7 +13,7 @@ class modelAnalysis:
         self.SIIR0 = SIIR0
 
 
-    def plotParamsChange(self, beta1prime_arr=None, beta2prime_arr=None):
+    def plotParamsChange(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False):
         if beta1prime_arr is None:
             beta1prime_arr = np.array([self.params[4]])
 
@@ -22,36 +22,84 @@ class modelAnalysis:
         params = self.params
 
         Beta1prime, Beta2prime = np.meshgrid(beta1prime_arr, beta2prime_arr)
-        peak1 = np.zeros((len(beta1prime_arr), len(beta2prime_arr)))
-        peak2 = np.zeros((len(beta1prime_arr), len(beta2prime_arr)))
-        for i in np.arange(len(beta1prime_arr)):
-            beta1prime = beta1prime_arr[i]
-            params[4] = beta1prime
-            for j in np.arange(len(beta2prime_arr)):
-                beta2prime = beta2prime_arr[j]
-                params[5] = beta2prime
+        peak1 = np.zeros((len(beta2prime_arr), len(beta1prime_arr)))
+        peak2 = np.zeros((len(beta2prime_arr), len(beta1prime_arr)))
+        for i in np.arange(len(beta2prime_arr)):
+            beta2prime = beta2prime_arr[i]
+            params[4] = beta2prime
+            for j in np.arange(len(beta1prime_arr)):
+                beta1prime = beta1prime_arr[j]
+                params[5] = beta1prime
                 siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
                 siir.runEvaluation()
                 peak1[i, j] = self.t_sim[siir.getDisease1()[1]] # getPeak1
                 peak2[i, j] = self.t_sim[siir.getDisease2()[1]] # getPeak2
 
-        print(peak1)
         # Plot
-        fontsize = 14
-        fig, ax = plt.subplots(1,2)
+        fontsize = 8
+        fig, ax = plt.subplots(1, 2)
         ax[0].set_xlabel('Beta1\'')
         ax[0].set_ylabel('Beta2\'')
         ax[0].set_title('Disease 1')
         ax[0].set_aspect('equal')
-        ax[0].plot(self.params[0] * np.ones(len(beta1prime_arr)), beta2prime_arr, '-.r')
-        ax[0].plot(beta1prime_arr, self.params[1] * np.ones(len(beta2prime_arr)), '-r')
+        ax[0].plot(self.params[0] * np.ones(len(beta2prime_arr)), beta2prime_arr, '-.r')
+        ax[0].plot(beta1prime_arr, self.params[1] * np.ones(len(beta1prime_arr)), '-r')
         ax[0].legend(('Beta1', 'Beta2'), fontsize=fontsize)
-        cf1 = ax[0].contourf(Beta1prime, Beta2prime, peak1, 30)
-        ax[0].contour(Beta1prime, Beta2prime, self.t_sim[peak1], 30, colors='black')
+        cf1 = ax[0].contourf(Beta1prime, Beta2prime, peak1, 10)
+        ax[0].contour(Beta1prime, Beta2prime, peak1, 10, colors='black')
         fig.colorbar(cf1, ax=ax[0])
         txt = ("Beta1 = " + str(self.params[0]) + "\n Delta1 = " + str(self.params[2]))
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
         ax[0].text(0.6, 0.4, txt, ha='left', transform=ax[0].transAxes, fontsize=fontsize, bbox=props, wrap=True)
+
+        ax[1].set_xlabel('Beta1\'')
+        ax[1].set_ylabel('Beta2\'')
+        ax[1].set_title('Disease 2')
+        ax[1].set_aspect('equal')
+        ax[1].plot(self.params[0] * np.ones(len(beta2prime_arr)), beta2prime_arr, '-.r')
+        ax[1].plot(beta1prime_arr, self.params[1] * np.ones(len(beta1prime_arr)), '-r')
+        ax[1].legend(('Beta1', 'Beta2'), fontsize=fontsize)
+        cf2 = ax[1].contourf(Beta1prime, Beta2prime, peak2, 10)
+        ax[1].contour(Beta1prime, Beta2prime, peak2, 10, colors='black')
+        fig.colorbar(cf2, ax=ax[1])
+        txt = ("Beta1 = " + str(self.params[1]) + "\n Delta1 = " + str(self.params[3]))
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
+        ax[1].text(0.6, 0.4, txt, ha='left', transform=ax[1].transAxes, fontsize=fontsize, bbox=props, wrap=True)
+
+        if savefig:
+            fig.savefig("images/paramsChange.svg", format='svg')
+        else:
+            plt.show()
+
+    def plotPrimeChanges(self, betaprime_arr = None, fixed = 2):
+        if betaprime_arr is None:
+            if fixed == 1:
+                betaprime_arr = np.array([self.params[5]])
+            elif fixed == 2:
+                betaprime_arr = np.array([self.params[4]])
+
+        fig, ax = plt.subplots(1, 2)
+        siir = mdl.SIIR(self.SIIR0, self.params, self.t_sim)
+        siir.runEvaluation()
+        ax[0].plot(self.t_sim, siir.getDisease1()[0], '-r', label='Original')
+        ax[1].plot(self.t_sim, siir.getDisease2()[0], '-b', label='Original')
+
+        params = self.params
+        if fixed == 2:
+            for beta1prime in betaprime_arr[::-1]:
+                params[4] = beta1prime
+                siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
+                siir.runEvaluation()
+                ax[0].plot(self.t_sim, siir.getDisease1()[0], label='Beta1\'=' + str(beta1prime))
+
+        elif fixed == 1:
+            for beta2prime in betaprime_arr[::-1]:
+                params[5] = beta2prime
+                siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
+                siir.runEvaluation()
+                ax[1].plot(self.t_sim, siir.getDisease2()[0], label='Beta2\'=' + str(beta2prime))
+        ax[0].legend()
+        ax[1].legend()
         plt.show()
 
 
@@ -72,6 +120,6 @@ def testAnalysis():
               14.51848543, 222.29093379, 13.98388944, 154.4459061]
 
     siirSim_orig = modelAnalysis(SIIR0, params, t_sim)
-    siirSim_orig.plotParamsChange(beta1prime_arr=np.arange(0, 100, 1), beta2prime_arr=np.arange(200, 210, 1))
-
+    #siirSim_orig.plotParamsChange(beta1prime_arr=np.arange(0, 40, 0.1), beta2prime_arr=np.arange(180, 250, 1))
+    siirSim_orig.plotPrimeChanges(betaprime_arr=np.arange(200, 228, 2), fixed=1)
 testAnalysis()
