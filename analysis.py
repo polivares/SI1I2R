@@ -120,6 +120,6 @@ def testAnalysis():
               14.51848543, 222.29093379, 13.98388944, 154.4459061]
 
     siirSim_orig = modelAnalysis(SIIR0, params, t_sim)
-    #siirSim_orig.plotParamsChange(beta1prime_arr=np.arange(0, 40, 0.1), beta2prime_arr=np.arange(180, 250, 1))
-    siirSim_orig.plotPrimeChanges(betaprime_arr=np.arange(200, 228, 2), fixed=1)
+    # siirSim_orig.plotParamsChange(beta1prime_arr=np.arange(0, 40, 0.1), beta2prime_arr=np.arange(180, 250, 1))
+    siirSim_orig.plotPrimeChanges(betaprime_arr=np.arange(200, 240, 5), fixed=1)
 testAnalysis()
