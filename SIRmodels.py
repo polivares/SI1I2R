@@ -134,6 +134,7 @@ class SIIR:
         IR = SRi * beta1 * (ISi + IIi + IRi) / N + delta2prime * IIi - delta1 * IRi
         RR = delta1 * IRi + delta2 * RIi
 
+
         return SS, IS, SI, II, RS, SR, RI, IR, RR
 
     # Configure SIIR model with initial conditions, parameters and time
@@ -255,7 +256,7 @@ def testSIIR():
     siirSim = SIIR(SIIR0, params, t_sim)
     siirSim.runEvaluation()
     #siirSim.plotSeries()
-    siirSim.plotDisease1Series(savefig=False)
-    siirSim.plotDisease2Series(savefig=False)
+    #siirSim.plotDisease1Series(savefig=False)
+    #siirSim.plotDisease2Series(savefig=False)
 
-#testSIIR()
+testSIIR()
