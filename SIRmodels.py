@@ -3,6 +3,7 @@ __email__ = "patricio.olivaresr@usm.cl"
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 import scipy.integrate as spi
 import peakutils as pk
 
@@ -229,6 +230,7 @@ def testSIR():
 
 
 def testSIIR():
+
     beta1 = 14.3553504
     beta1prime = 14.51848543
     delta1 = 13.16275817
@@ -256,7 +258,7 @@ def testSIIR():
     siirSim = SIIR(SIIR0, params, t_sim)
     siirSim.runEvaluation()
     #siirSim.plotSeries()
-    #siirSim.plotDisease1Series(savefig=False)
+    #siirSim.plotDisease1Series(savefig=True)
     #siirSim.plotDisease2Series(savefig=False)
 
 testSIIR()
