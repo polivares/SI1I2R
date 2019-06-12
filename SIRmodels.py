@@ -135,7 +135,6 @@ class SIIR:
         IR = SRi * beta1 * (ISi + IIi + IRi) / N + delta2prime * IIi - delta1 * IRi
         RR = delta1 * IRi + delta2 * RIi
 
-
         return SS, IS, SI, II, RS, SR, RI, IR, RR
 
     # Configure SIIR model with initial conditions, parameters and time
@@ -162,6 +161,14 @@ class SIIR:
     # Get Time Series of Disease two
     def getDisease2(self):
         return self.dis2, self.peak2pos
+
+    def getNInfected1(self):
+        n_infected = self.SIIR_Res[:, 4][-1] + self.SIIR_Res[:, 6][-1] + self.SIIR_Res[:, 8][-1]
+        return n_infected
+
+    def getNInfected2(self):
+        n_infected = self.SIIR_Res[:, 5][-1] + self.SIIR_Res[:, 7][-1] + self.SIIR_Res[:, 8][-1]
+        return n_infected
 
     # Plot both Series
     def plotSeries(self):
@@ -200,19 +207,18 @@ class SIIR:
 
 
 def testSIR():
-    beta = 14.3553504
-    delta = 13.16275817
+    beta = 5
+    delta = 2
     params = (beta, delta)
 
-    N = 21739040
-    I0 = 119
+    N = 1000
+    I0 = 1
     S0 = N - I0
     R0 = 0
-    SIR0 = (S0,I0,R0)
-
+    SIR0 = (S0, I0, R0)
 
     t_start = 0
-    t_end = 12
+    t_end = 160
     n_int = 10000
 
     t_sim = np.linspace(t_start, t_end, n_int)
@@ -224,8 +230,15 @@ def testSIR():
 
     sirSim = SIR(SIR0, params, t_sim)
     sirSim.runEvaluation()
-    sirSim.plotSeries()
-    print(t_sim[sirSim.getResult()[1]])
+    res, _ = sirSim.getResult()
+    plt.plot(t_sim, res[:, 0])
+    plt.plot(t_sim, res[:, 1])
+    plt.plot(t_sim, res[:, 2])
+    plt.show()
+    print(res[:, 2][-1])
+    print(np.sum(res[:, 1] * 2 * t_end/n_int))
+    #sirSim.plotSeries()
+    #print(t_sim[sirSim.getResult()[1]])
     #print(sirSim.getResult())
 
 
@@ -244,7 +257,7 @@ def testSIIR():
     N = 21739040
 
     t_start = 0
-    t_end = 12
+    t_end = 25
     n_int = 10000
 
     t_sim = np.linspace(t_start, t_end, n_int)
@@ -260,5 +273,14 @@ def testSIIR():
     #siirSim.plotSeries()
     #siirSim.plotDisease1Series(savefig=True)
     #siirSim.plotDisease2Series(savefig=False)
+    print("N infected1: " + str(siirSim.getNInfected1()))
+    res = siirSim.getResult()
+    #dy = np.trapz(res[:, 1] + res[:, 3] + res[:, 7], t_sim)
+    #print("N infected1: " + str(np.sum(dy)))
+    #print("N infected2: " + str(siirSim.getNInfected2()))
 
-testSIIR()
+
+    plt.plot(t_sim, res[:, 1] )
+    plt.plot(t_sim, res[:, 4])
+    plt.show()
+testSIR()
