@@ -102,6 +102,11 @@ class modelAnalysis:
                 ax[0].plot(self.t_sim, siir.getDisease1()[0], label='Beta2\'=' + str(beta2prime))
         ax[0].legend()
         ax[1].legend()
+        txt = ("Beta1 = " + str(self.params[0]) + ", Delta1 = " + str(self.params[2]) +
+               ", Beta2 = " + str(self.params[1]) + ", Delta2 = " + str(self.params[3]) +
+               "\nBeta1' = " + str(self.params[4]) + ", Delta1' = " + str(self.params[6]) +
+               ", Beta2' = " + str(self.params[5]) + ", Delta2' = " + str(self.params[7]))
+        plt.figtext(0.65, 0.9, txt, ha="right", va="bottom", bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
         plt.show()
 
 
@@ -139,7 +144,9 @@ def getAnalysis():
     n_int = 10000
 
     t_sim = np.linspace(t_start, t_end, n_int)
-    params = [10, 10, 5, 9.9, 10, 10, 3, 8]
+    #params = [10, 10, 5, 9.9, 10, 10, 3, 8]
+    params = [10, 10, 5, 10, 10, 10, 5, 5]
+
 
     siirSim_orig = modelAnalysis(SIIR0, params, t_sim)
     #siirSim_orig.plotParamsChange(beta1prime_arr=np.arange(0, 40, 0.1), beta2prime_arr=np.arange(180, 250, 1))

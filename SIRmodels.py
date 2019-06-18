@@ -283,4 +283,4 @@ def testSIIR():
     plt.plot(t_sim, res[:, 1] )
     plt.plot(t_sim, res[:, 4])
     plt.show()
-testSIR()
+#testSIR()
