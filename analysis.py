@@ -103,7 +103,7 @@ class modelAnalysis:
         plt.figtext(0.65, 0.9, txt, ha="right", va="bottom", bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
         plt.show()
 
-    def plotChange(self, betaprime_arr=None, fixed=2):
+    def plotChange(self, betaprime_arr=None, fixed=2, peak=False):
         if betaprime_arr is None:
             if fixed == 1:
                 betaprime_arr = np.array([self.params[5]])
@@ -114,7 +114,11 @@ class modelAnalysis:
         siir = mdl.SIIR(self.SIIR0, self.params, self.t_sim)
         siir.runEvaluation()
         ax[0].plot(self.t_sim, siir.getDisease1()[0], '-r', label='Original')
-        ax[1].plot(self.t_sim, siir.getDisease2()[0], '-b', label='Original')
+        ax[1].plot(self.t_sim, siir.getDisease2()[0], '-r', label='Original')
+
+        if peak:
+            ax[0].plot(self.t_sim[siir.getDisease1()[1]], siir.getDisease1()[0][siir.getDisease1()[1]], '*k')
+            ax[1].plot(self.t_sim[siir.getDisease2()[1]], siir.getDisease2()[0][siir.getDisease2()[1]], '*k')
 
         params = self.params.copy()
         if fixed == 2:
@@ -173,20 +177,24 @@ def getAnalysis():
     SIIR0[0] = N - np.sum(SIIR0[1:8])
 
     t_start = 0
-    t_end = 20
+    t_end = 15
     n_int = 10000
 
     t_sim = np.linspace(t_start, t_end, n_int)
     #params = [10, 10, 5, 9.9, 10, 10, 3, 8]
     #params = [10, 10, 5, 10, 10, 10, 5, 5]
-    params = [5,5,5,5,0,0,0,0]
+    #params = [20, 10, 15, 9, 20, 10, 19.5, 9]
 
+    params = [10, 10, 5, 9, 10, 10, 5, 15] # Fixed delta primes
+    #params = [10, 8, 9.5, 7.9, 10, 8, 9.5, 2] # Change delta prime 1
+    #params = [5, 3, 2, 2, 5, 3, 1, 2] # Change delta prime 1
+    #params = [5, 3, 2, 2, 5, 3, 2, 1]  # Change delta prime 2
 
     siirSim_orig = modelAnalysis(SIIR0, params, t_sim)
     #siirSim_orig.plotChange2D(beta1prime_arr=np.arange(0, 40, 0.1), beta2prime_arr=np.arange(180, 250, 1))
-    siirSim_orig.plotChange(betaprime_arr=np.arange(0, 30, 5), fixed=1)
-    siirSim_orig.plotChange(betaprime_arr=np.arange(0, 30, 5), fixed=2)
-    siirSim_orig.plotChangeBoth(beta1prime_arr=np.array([5, 15]),beta2prime_arr=[5, 15])
+    siirSim_orig.plotChange(betaprime_arr=np.array([0, 15, 20, 100]), fixed=1)
+    siirSim_orig.plotChange(betaprime_arr=np.array([0, 15, 20, 100]), fixed=2)
+    #siirSim_orig.plotChangeBoth(beta1prime_arr=np.array([5, 15]),beta2prime_arr=[5, 15])
     #siirSim_orig.plotChange(betaprime_arr=[2, 10], fixed=2)
     #siirSim_orig.plotChange(betaprime_arr=[5, 20], fixed=1)
     #siirSim_orig.plotChange(beta1prime_arr=np.arange(0,20,0.2), beta2prime_arr=np.arange(0,20,0.1))
