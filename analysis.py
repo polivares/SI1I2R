@@ -145,14 +145,12 @@ def getAnalysis():
 
     t_sim = np.linspace(t_start, t_end, n_int)
     #params = [10, 10, 5, 9.9, 10, 10, 3, 8]
-    params = [10, 10, 5, 10, 10, 10, 5, 5]
+    params = [10, 10, 5, 9.9, 10, 10, 5, 15]
 
 
     siirSim_orig = modelAnalysis(SIIR0, params, t_sim)
     #siirSim_orig.plotParamsChange(beta1prime_arr=np.arange(0, 40, 0.1), beta2prime_arr=np.arange(180, 250, 1))
-    siirSim_orig.plotPrimeChanges(betaprime_arr=np.arange(0, 30, 5), fixed=1)
-    siirSim_orig.plotPrimeChanges(betaprime_arr=np.arange(0, 30, 5), fixed=2)
-    #siirSim_orig.plotPrimeChanges(betaprime_arr=[2, 10], fixed=2)
-    #siirSim_orig.plotPrimeChanges(betaprime_arr=[5, 20], fixed=1)
-    #siirSim_orig.plotParamsChange(beta1prime_arr=np.arange(0,20,0.2), beta2prime_arr=np.arange(0,20,0.1))
+    #siirSim_orig.plotPrimeChanges(betaprime_arr=np.arange(0, 30, 5), fixed=1)
+    #siirSim_orig.plotPrimeChanges(betaprime_arr=np.arange(0, 30, 5), fixed=2)
+    siirSim_orig.plotParamsChange(beta1prime_arr=np.arange(0,20,0.2), beta2prime_arr=np.arange(0,20,0.1))
 getAnalysis()
