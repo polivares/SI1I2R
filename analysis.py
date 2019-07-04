@@ -194,6 +194,7 @@ def getAnalysis():
     #siirSim_orig.plotChange2D(beta1prime_arr=np.arange(0, 40, 0.1), beta2prime_arr=np.arange(180, 250, 1))
     siirSim_orig.plotChange(betaprime_arr=np.array([0, 15, 20, 100]), fixed=1)
     siirSim_orig.plotChange(betaprime_arr=np.array([0, 15, 20, 100]), fixed=2)
+    si
     #siirSim_orig.plotChangeBoth(beta1prime_arr=np.array([5, 15]),beta2prime_arr=[5, 15])
     #siirSim_orig.plotChange(betaprime_arr=[2, 10], fixed=2)
     #siirSim_orig.plotChange(betaprime_arr=[5, 20], fixed=1)
