@@ -13,7 +13,7 @@ class modelAnalysis:
         self.SIIR0 = SIIR0
 
 
-    def plotChange2D(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False):
+    def plotPeak2D(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False):
         if beta1prime_arr is None:
             beta1prime_arr = np.array([self.params[4]])
 
@@ -21,15 +21,16 @@ class modelAnalysis:
             beta2prime_arr = np.array([self.params[5]])
         params = self.params.copy()
 
-        Beta1prime, Beta2prime = np.meshgrid(beta1prime_arr, beta2prime_arr)
-        peak1 = np.zeros((len(beta2prime_arr), len(beta1prime_arr)))
-        peak2 = np.zeros((len(beta2prime_arr), len(beta1prime_arr)))
-        for i in np.arange(len(beta2prime_arr)):
-            beta2prime = beta2prime_arr[i]
-            params[4] = beta2prime
-            for j in np.arange(len(beta1prime_arr)):
-                beta1prime = beta1prime_arr[j]
-                params[5] = beta1prime
+        Beta1prime, Beta2prime = np.meshgrid(beta2prime_arr, beta1prime_arr)
+        peak1 = np.zeros((len(beta1prime_arr), len(beta2prime_arr)))
+        peak2 = np.zeros((len(beta1prime_arr), len(beta2prime_arr)))
+        for j in np.arange(len(beta2prime_arr)):
+            beta2prime = beta2prime_arr[j]
+            params[5] = beta2prime
+            for i in np.arange(len(beta1prime_arr)):
+                beta1prime = beta1prime_arr[i]
+                print("(beta1prime,beta2prime)", beta1prime, beta2prime)
+                params[4] = beta1prime
                 siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
                 siir.runEvaluation()
                 peak1[i, j] = self.t_sim[siir.getDisease1()[1]][0] # getPeak1
@@ -45,10 +46,11 @@ class modelAnalysis:
         ax[0].plot(self.params[0] * np.ones(len(beta2prime_arr)), beta2prime_arr, '-.r')
         ax[0].plot(beta1prime_arr, self.params[1] * np.ones(len(beta1prime_arr)), '-r')
         ax[0].legend(('Beta1', 'Beta2'), fontsize=fontsize)
-        cf1 = ax[0].contourf(Beta1prime, Beta2prime, peak1, 10)
+        cf1 = ax[0].contourf(Beta2prime, Beta1prime, peak1, 30)
         #ax[0].contour(Beta1prime, Beta2prime, peak1, 10, colors='black')
         fig.colorbar(cf1, ax=ax[0])
-        txt = ("Beta1 = " + str(self.params[0]) + "\n Delta1 = " + str(self.params[2]))
+        txt = ("Beta1 = " + str(self.params[0]) + "\n Delta1 = " + str(self.params[2])
+               + "\n Beta1\' = " + str(self.params[4]) + "\n Delta1\' = " + str(self.params[6]))
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
         ax[0].text(0.6, 0.4, txt, ha='left', transform=ax[0].transAxes, fontsize=fontsize, bbox=props, wrap=True)
 
@@ -59,19 +61,81 @@ class modelAnalysis:
         ax[1].plot(self.params[0] * np.ones(len(beta2prime_arr)), beta2prime_arr, '-.r')
         ax[1].plot(beta1prime_arr, self.params[1] * np.ones(len(beta1prime_arr)), '-r')
         ax[1].legend(('Beta1', 'Beta2'), fontsize=fontsize)
-        cf2 = ax[1].contourf(Beta1prime, Beta2prime, peak2, 10)
+        cf2 = ax[1].contourf(Beta2prime, Beta1prime, peak2, 30)
         #ax[1].contour(Beta1prime, Beta2prime, peak2, 10, colors='black')
         fig.colorbar(cf2, ax=ax[1])
-        txt = ("Beta1 = " + str(self.params[1]) + "\n Delta1 = " + str(self.params[3]))
+        txt = ("Beta2 = " + str(self.params[1]) + "\n Delta2 = " + str(self.params[3])
+               + "\n Beta2\' = " + str(self.params[5]) + "\n Delta2\' = " + str(self.params[7]))
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
         ax[1].text(0.6, 0.4, txt, ha='left', transform=ax[1].transAxes, fontsize=fontsize, bbox=props, wrap=True)
 
         if savefig:
-            fig.savefig("images/paramsChange.svg", format='svg')
+            fig.savefig("images/peak2D.svg", format='svg')
         else:
             plt.show()
 
-    def plotChangeBoth(self, beta1prime_arr = None, beta2prime_arr = None):
+    def plotInfected2D(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False):
+        if beta1prime_arr is None:
+            beta1prime_arr = np.array([self.params[4]])
+
+        if beta2prime_arr is None:
+            beta2prime_arr = np.array([self.params[5]])
+        params = self.params.copy()
+
+        Beta1prime, Beta2prime = np.meshgrid(beta2prime_arr, beta1prime_arr)
+        inf1 = np.zeros((len(beta2prime_arr), len(beta1prime_arr)))
+        inf2 = np.zeros((len(beta2prime_arr), len(beta1prime_arr)))
+        for j in np.arange(len(beta2prime_arr)):
+            beta2prime = beta2prime_arr[j]
+            params[5] = beta2prime
+            for i in np.arange(len(beta1prime_arr)):
+                beta1prime = beta1prime_arr[i]
+                print("(beta1prime,beta2prime)", beta1prime, beta2prime)
+                params[4] = beta1prime
+                siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
+                siir.runEvaluation()
+                inf1[i, j] = siir.getNInfected1() # n infected 1
+                inf2[i, j] = siir.getNInfected2() # n infected 2
+
+        # Plot
+        fontsize = 8
+        fig, ax = plt.subplots(1, 2)
+        ax[0].set_xlabel('Beta1\'')
+        ax[0].set_ylabel('Beta2\'')
+        ax[0].set_title('Disease 1')
+        ax[0].set_aspect('equal')
+        ax[0].plot(self.params[0] * np.ones(len(beta2prime_arr)), beta2prime_arr, '-.r')
+        ax[0].plot(beta1prime_arr, self.params[1] * np.ones(len(beta1prime_arr)), '-r')
+        ax[0].legend(('Beta1', 'Beta2'), fontsize=fontsize)
+        cf1 = ax[0].contourf(Beta2prime, Beta1prime, inf1, 30)
+        #ax[0].contour(Beta1prime, Beta2prime, peak1, 10, colors='black')
+        fig.colorbar(cf1, ax=ax[0])
+        txt = ("Beta1 = " + str(self.params[0]) + "\n Delta1 = " + str(self.params[2])
+               + "\n Beta1\' = " + str(self.params[4]) + "\n Delta1\' = " + str(self.params[6]))
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
+        ax[0].text(0.6, 0.4, txt, ha='left', transform=ax[0].transAxes, fontsize=fontsize, bbox=props, wrap=True)
+
+        ax[1].set_xlabel('Beta1\'')
+        ax[1].set_ylabel('Beta2\'')
+        ax[1].set_title('Disease 2')
+        ax[1].set_aspect('equal')
+        ax[1].plot(self.params[0] * np.ones(len(beta2prime_arr)), beta2prime_arr, '-.r')
+        ax[1].plot(beta1prime_arr, self.params[1] * np.ones(len(beta1prime_arr)), '-r')
+        ax[1].legend(('Beta1', 'Beta2'), fontsize=fontsize)
+        cf2 = ax[1].contourf(Beta2prime, Beta1prime, inf2, 30)
+        #ax[1].contour(Beta1prime, Beta2prime, peak2, 10, colors='black')
+        fig.colorbar(cf2, ax=ax[1])
+        txt = ("Beta2 = " + str(self.params[1]) + "\n Delta2 = " + str(self.params[3])
+               + "\n Beta2\' = " + str(self.params[5]) + "\n Delta2\' = " + str(self.params[7]))
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
+        ax[1].text(0.6, 0.4, txt, ha='left', transform=ax[1].transAxes, fontsize=fontsize, bbox=props, wrap=True)
+
+        if savefig:
+            fig.savefig("images/infected2D.svg", format='svg')
+        else:
+            plt.show()
+
+    def plotChangeBoth(self, beta1prime_arr=None, beta2prime_arr=None):
         if beta1prime_arr is None:
             beta1prime_arr = np.array([self.params[4]])
 
@@ -79,7 +143,7 @@ class modelAnalysis:
             beta2prime_arr = np.array([self.params[5]])
 
 
-        fig, ax = plt.subplots(1, 2)
+        fig,ax=plt.subplots(1,2)
         siir = mdl.SIIR(self.SIIR0, self.params, self.t_sim)
         siir.runEvaluation()
         ax[0].plot(self.t_sim, siir.getDisease1()[0], '-r', label='Original')
@@ -128,6 +192,9 @@ class modelAnalysis:
                 siir.runEvaluation()
                 ax[0].plot(self.t_sim, siir.getDisease1()[0], label='Beta1\'=' + str(beta1prime))
                 ax[1].plot(self.t_sim, siir.getDisease2()[0], label='Beta1\'=' + str(beta1prime))
+                if peak:
+                    ax[0].plot(self.t_sim[siir.getDisease1()[1]], siir.getDisease1()[0][siir.getDisease1()[1]], '*k')
+                    ax[1].plot(self.t_sim[siir.getDisease2()[1]], siir.getDisease2()[0][siir.getDisease2()[1]], '*k')
 
         elif fixed == 1:
             for beta2prime in betaprime_arr[::-1]:
@@ -136,6 +203,11 @@ class modelAnalysis:
                 siir.runEvaluation()
                 ax[1].plot(self.t_sim, siir.getDisease2()[0], label='Beta2\'=' + str(beta2prime))
                 ax[0].plot(self.t_sim, siir.getDisease1()[0], label='Beta2\'=' + str(beta2prime))
+                if peak:
+                    ax[0].plot(self.t_sim[siir.getDisease1()[1]], siir.getDisease1()[0][siir.getDisease1()[1]], '*k')
+                    ax[1].plot(self.t_sim[siir.getDisease2()[1]], siir.getDisease2()[0][siir.getDisease2()[1]], '*k')
+
+
         ax[0].legend()
         ax[1].legend()
         txt = ("Beta1 = " + str(self.params[0]) + ", Delta1 = " + str(self.params[2]) +
@@ -185,18 +257,15 @@ def getAnalysis():
     #params = [10, 10, 5, 10, 10, 10, 5, 5]
     #params = [20, 10, 15, 9, 20, 10, 19.5, 9]
 
-    params = [10, 10, 5, 9, 10, 10, 5, 15] # Fixed delta primes
-    #params = [10, 8, 9.5, 7.9, 10, 8, 9.5, 2] # Change delta prime 1
-    #params = [5, 3, 2, 2, 5, 3, 1, 2] # Change delta prime 1
-    #params = [5, 3, 2, 2, 5, 3, 2, 1]  # Change delta prime 2
+    params = [10, 10, 9, 5, 10, 10, 15, 5] # Fixed delta primes
+    #params = [10, 10, 5, 9, 10, 10, 5, 5]  # Fixed delta primes
+
 
     siirSim_orig = modelAnalysis(SIIR0, params, t_sim)
-    #siirSim_orig.plotChange2D(beta1prime_arr=np.arange(0, 40, 0.1), beta2prime_arr=np.arange(180, 250, 1))
-    siirSim_orig.plotChange(betaprime_arr=np.array([0, 15, 20, 100]), fixed=1)
-    siirSim_orig.plotChange(betaprime_arr=np.array([0, 15, 20, 100]), fixed=2)
-    si
-    #siirSim_orig.plotChangeBoth(beta1prime_arr=np.array([5, 15]),beta2prime_arr=[5, 15])
-    #siirSim_orig.plotChange(betaprime_arr=[2, 10], fixed=2)
-    #siirSim_orig.plotChange(betaprime_arr=[5, 20], fixed=1)
-    #siirSim_orig.plotChange(beta1prime_arr=np.arange(0,20,0.2), beta2prime_arr=np.arange(0,20,0.1))
+
+    #siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=1, peak=True)
+    #siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=2, peak=True)
+    siirSim_orig.plotPeak2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
+    siirSim_orig.plotInfected2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
+
 getAnalysis()

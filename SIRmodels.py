@@ -147,8 +147,8 @@ class SIIR:
         self.SIIR_Res = self.__modelSIIR(self.SIIR0, self.t_sim, self.params)
         self.dis1 = self.SIIR_Res[:, 1] + self.SIIR_Res[:, 3] + self.SIIR_Res[:, 7]
         self.dis2 = self.SIIR_Res[:, 2] + self.SIIR_Res[:, 3] + self.SIIR_Res[:, 6]
-        self.peak1pos = pk.indexes(self.dis1)
-        self.peak2pos = pk.indexes(self.dis2)
+        self.peak1pos = pk.indexes(self.dis1, thres=0.9)
+        self.peak2pos = pk.indexes(self.dis2, thres=0.9)
 
     # Get Time Series of both diseases (whole result)
     def getResult(self):
