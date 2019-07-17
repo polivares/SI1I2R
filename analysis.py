@@ -263,8 +263,8 @@ def getAnalysis():
 
     siirSim_orig = modelAnalysis(SIIR0, params, t_sim)
 
-    siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=1, peak=True)
-    siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=2, peak=True)
+    siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=1, peak=False)
+    siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=2, peak=False)
     #siirSim_orig.plotPeak2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
     #siirSim_orig.plotInfected2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
 
