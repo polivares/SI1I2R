@@ -135,6 +135,49 @@ class modelAnalysis:
         else:
             plt.show()
 
+    def plotPeakNInfected(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False):
+        if beta1prime_arr is None:
+            beta1prime_arr = np.array([self.params[4]])
+
+        if beta2prime_arr is None:
+            beta2prime_arr = np.array([self.params[5]])
+        params = self.params.copy()
+
+        Beta1prime, Beta2prime = np.meshgrid(beta2prime_arr, beta1prime_arr)
+        peak1 = np.zeros((len(beta1prime_arr), len(beta2prime_arr)))
+        peak2 = np.zeros((len(beta1prime_arr), len(beta2prime_arr)))
+        inf1 = np.zeros((len(beta2prime_arr), len(beta1prime_arr)))
+        inf2 = np.zeros((len(beta2prime_arr), len(beta1prime_arr)))
+        for j in np.arange(len(beta2prime_arr)):
+            beta2prime = beta2prime_arr[j]
+            params[5] = beta2prime
+            for i in np.arange(len(beta1prime_arr)):
+                beta1prime = beta1prime_arr[i]
+                print("(beta1prime,beta2prime)", beta1prime, beta2prime)
+                params[4] = beta1prime
+                siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
+                siir.runEvaluation()
+                peak1[i, j] = self.t_sim[siir.getDisease1()[1]][0] # getPeak1
+                peak2[i, j] = self.t_sim[siir.getDisease2()[1]][0] # getPeak2
+                inf1[i, j] = siir.getNInfected1()  # n infected 1
+                inf2[i, j] = siir.getNInfected2()  # n infected 2
+        peak1 = peak1.flatten()
+        peak2 = peak2.flatten()
+        inf1 = inf1.flatten()
+        inf2 = inf2.flatten()
+
+        plt.plot(peak1, inf1, '.r', label='Disease 1')
+        plt.xlabel("Peak position")
+        plt.ylabel("N° people infected")
+        plt.show()
+
+        plt.plot(peak2, inf2, '.b', label='Disease 2')
+        plt.xlabel("Peak position")
+        plt.ylabel("N° people infected")
+        plt.show()
+
+
+
     def plotChangeBoth(self, beta1prime_arr=None, beta2prime_arr=None):
         if beta1prime_arr is None:
             beta1prime_arr = np.array([self.params[4]])
@@ -265,7 +308,8 @@ def getAnalysis():
 
     #siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=1, peak=False)
     #siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=2, peak=False)
-    siirSim_orig.plotPeak2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
-    siirSim_orig.plotInfected2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
+    #siirSim_orig.plotPeak2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
+    #siirSim_orig.plotInfected2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
+    siirSim_orig.plotPeakNInfected(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
 
 getAnalysis()
