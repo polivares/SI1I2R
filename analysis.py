@@ -13,7 +13,7 @@ class modelAnalysis:
         self.SIIR0 = SIIR0
 
 
-    def plotPeak2D(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False):
+    def plotPeak2D(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False, norm=False):
         if beta1prime_arr is None:
             beta1prime_arr = np.array([self.params[4]])
 
@@ -32,7 +32,7 @@ class modelAnalysis:
                 print("(beta1prime,beta2prime)", beta1prime, beta2prime)
                 params[4] = beta1prime
                 siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
-                siir.runEvaluation()
+                siir.runEvaluation(norm)
                 peak1[i, j] = self.t_sim[siir.getDisease1()[1]][0] # getPeak1
                 peak2[i, j] = self.t_sim[siir.getDisease2()[1]][0] # getPeak2
 
@@ -74,7 +74,7 @@ class modelAnalysis:
         else:
             plt.show()
 
-    def plotInfected2D(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False):
+    def plotInfected2D(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False, norm=False):
         if beta1prime_arr is None:
             beta1prime_arr = np.array([self.params[4]])
 
@@ -93,7 +93,7 @@ class modelAnalysis:
                 print("(beta1prime,beta2prime)", beta1prime, beta2prime)
                 params[4] = beta1prime
                 siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
-                siir.runEvaluation()
+                siir.runEvaluation(norm)
                 inf1[i, j] = siir.getNInfected1() # n infected 1
                 inf2[i, j] = siir.getNInfected2() # n infected 2
 
@@ -135,7 +135,7 @@ class modelAnalysis:
         else:
             plt.show()
 
-    def plotPeakNInfected(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False):
+    def plotPeakNInfected(self, beta1prime_arr=None, beta2prime_arr=None, savefig=False, norm=False):
         if beta1prime_arr is None:
             beta1prime_arr = np.array([self.params[4]])
 
@@ -156,7 +156,7 @@ class modelAnalysis:
                 print("(beta1prime,beta2prime)", beta1prime, beta2prime)
                 params[4] = beta1prime
                 siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
-                siir.runEvaluation()
+                siir.runEvaluation(norm)
                 peak1[i, j] = self.t_sim[siir.getDisease1()[1]][0] # getPeak1
                 peak2[i, j] = self.t_sim[siir.getDisease2()[1]][0] # getPeak2
                 inf1[i, j] = siir.getNInfected1()  # n infected 1
@@ -178,7 +178,7 @@ class modelAnalysis:
 
 
 
-    def plotChangeBoth(self, beta1prime_arr=None, beta2prime_arr=None):
+    def plotChangeBoth(self, beta1prime_arr=None, beta2prime_arr=None, norm=False):
         if beta1prime_arr is None:
             beta1prime_arr = np.array([self.params[4]])
 
@@ -188,7 +188,7 @@ class modelAnalysis:
 
         fig,ax=plt.subplots(1,2)
         siir = mdl.SIIR(self.SIIR0, self.params, self.t_sim)
-        siir.runEvaluation()
+        siir.runEvaluation(norm)
         ax[0].plot(self.t_sim, siir.getDisease1()[0], '-r', label='Original')
         ax[1].plot(self.t_sim, siir.getDisease2()[0], '-b', label='Original')
 
@@ -198,7 +198,7 @@ class modelAnalysis:
                 params[4] = beta1prime
                 params[5] = beta2prime
                 siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
-                siir.runEvaluation()
+                siir.runEvaluation(norm)
                 ax[0].plot(self.t_sim, siir.getDisease1()[0], label='B1\'=' + str(beta1prime) + "\nB2\'=" + str(beta2prime))
                 ax[1].plot(self.t_sim, siir.getDisease2()[0], label='B1\'=' + str(beta1prime) + "\nB2\'=" + str(beta2prime))
         ax[0].legend()
@@ -210,7 +210,7 @@ class modelAnalysis:
         plt.figtext(0.65, 0.9, txt, ha="right", va="bottom", bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
         plt.show()
 
-    def plotChange(self, betaprime_arr=None, fixed=2, peak=False):
+    def plotChange(self, betaprime_arr=None, fixed=2, peak=False, norm=False):
         if betaprime_arr is None:
             if fixed == 1:
                 betaprime_arr = np.array([self.params[5]])
@@ -219,7 +219,7 @@ class modelAnalysis:
 
         fig, ax = plt.subplots(2, 1)
         siir = mdl.SIIR(self.SIIR0, self.params, self.t_sim)
-        siir.runEvaluation()
+        siir.runEvaluation(norm)
         ax[0].plot(self.t_sim, siir.getDisease1()[0], '-r', label='Original')
         ax[1].plot(self.t_sim, siir.getDisease2()[0], '-r', label='Original')
 
@@ -232,7 +232,7 @@ class modelAnalysis:
             for beta1prime in betaprime_arr[::-1]:
                 params[4] = beta1prime
                 siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
-                siir.runEvaluation()
+                siir.runEvaluation(norm)
                 ax[0].plot(self.t_sim, siir.getDisease1()[0], label='Beta1\'=' + str(beta1prime))
                 ax[1].plot(self.t_sim, siir.getDisease2()[0], label='Beta1\'=' + str(beta1prime))
                 if peak:
@@ -243,7 +243,7 @@ class modelAnalysis:
             for beta2prime in betaprime_arr[::-1]:
                 params[5] = beta2prime
                 siir = mdl.SIIR(self.SIIR0, params, self.t_sim)
-                siir.runEvaluation()
+                siir.runEvaluation(norm)
                 ax[1].plot(self.t_sim, siir.getDisease2()[0], label='Beta2\'=' + str(beta2prime))
                 ax[0].plot(self.t_sim, siir.getDisease1()[0], label='Beta2\'=' + str(beta2prime))
                 if peak:
@@ -300,16 +300,16 @@ def getAnalysis():
     #params = [10, 10, 5, 10, 10, 10, 5, 5]
     #params = [20, 10, 15, 9, 20, 10, 19.5, 9]
 
-    params = [10, 10, 9, 5, 10, 10, 15, 5] # Fixed delta primes
+    params = [10, 10, 9, 5, 10, 10, 2, 5] # Fixed delta primes
     #params = [10, 10, 5, 9, 10, 10, 5, 5]  # Fixed delta primes
 
 
     siirSim_orig = modelAnalysis(SIIR0, params, t_sim)
 
-    #siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=1, peak=False)
-    #siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=2, peak=False)
-    #siirSim_orig.plotPeak2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
-    #siirSim_orig.plotInfected2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
-    siirSim_orig.plotPeakNInfected(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False)
+    siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=1, peak=False, norm=True)
+    siirSim_orig.plotChange(betaprime_arr=np.array([5, 15, 40]), fixed=2, peak=False, norm=True)
+    siirSim_orig.plotPeak2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False, norm=True)
+    siirSim_orig.plotInfected2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False, norm=True)
+    siirSim_orig.plotPeakNInfected(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False, norm=True)
 
 getAnalysis()

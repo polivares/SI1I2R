@@ -143,8 +143,11 @@ class SIIR:
         return SIIR_Res
 
     # Run simulation
-    def runEvaluation(self):
+    def runEvaluation(self, norm=False):
         self.SIIR_Res = self.__modelSIIR(self.SIIR0, self.t_sim, self.params)
+        N = np.sum(self.SIIR0)
+        if norm:
+            self.SIIR_Res = self.SIIR_Res/N
         self.dis1 = self.SIIR_Res[:, 1] + self.SIIR_Res[:, 3] + self.SIIR_Res[:, 7]
         self.dis2 = self.SIIR_Res[:, 2] + self.SIIR_Res[:, 3] + self.SIIR_Res[:, 6]
         self.peak1pos = pk.indexes(self.dis1, thres=0.9)
@@ -269,7 +272,7 @@ def testSIIR():
     SIIR0[0] = N - np.sum(SIIR0[1:8])
 
     siirSim = SIIR(SIIR0, params, t_sim)
-    siirSim.runEvaluation()
+    siirSim.runEvaluation(norm=True)
     #siirSim.plotSeries()
     #siirSim.plotDisease1Series(savefig=True)
     #siirSim.plotDisease2Series(savefig=False)
@@ -278,9 +281,7 @@ def testSIIR():
     #dy = np.trapz(res[:, 1] + res[:, 3] + res[:, 7], t_sim)
     #print("N infected1: " + str(np.sum(dy)))
     #print("N infected2: " + str(siirSim.getNInfected2()))
-
     plt.plot(t_sim, res[:, 0], 'g')
     plt.plot(t_sim, res[:, 1] + res[:, 3] + res[:, 6], 'r')
     plt.plot(t_sim, res[:, 4], 'b')
     plt.show()
-#testSIIR()
