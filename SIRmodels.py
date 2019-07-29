@@ -70,21 +70,31 @@ class SIR:
         SIR_Res = spi.odeint(self.__SIR_eqs, SIR0, t, args=(params,))
         return SIR_Res
 
-    def runEvaluation(self):
+    def runEvaluation(self, norm=False):
         """
         Run the evaluation of the model and saves the result on SIR_Res variable and the peak position of the infection
         of the disease on peakpos variable.
         :return: SIR_Res
         """
         self.SIR_Res = self.__modelSIR(self.SIR0, self.t_sim, self.params)
-        self.peakpos = pk.indexes(self.SIR_Res[:, 1])
+        N = np.sum(self.SIR0)
+        if norm:
+            self.SIR_Res = self.SIR_Res / N
+        self.peakpos = pk.indexes(self.SIR_Res[:, 1], thres=0.5)
 
     def getResult(self):
         """
         Return the result of the evaluation (SIR_Res) and the peak position of the infection (peakpos)
         :return: SIR_Res
         """
-        return self.SIR_Res, self.peakpos
+        return self.SIR_Res
+
+    def getDisease(self):
+        return self.SIR_Res[:, 1], self.peakpos
+
+    def getNInfected(self):
+        n_infected = self.SIR_Res[:, 2][-1]
+        return n_infected
 
     # Plot time series result
     def plotSeries(self):
@@ -210,18 +220,18 @@ class SIIR:
 
 
 def testSIR():
-    beta = 5
-    delta = 2
+    beta = 5.06
+    delta = 5
     params = (beta, delta)
 
-    N = 1000
-    I0 = 1
+    N = 1000000
+    I0 = 100
     S0 = N - I0
     R0 = 0
     SIR0 = (S0, I0, R0)
 
     t_start = 0
-    t_end = 10
+    t_end = 100
     n_int = 10000
 
     t_sim = np.linspace(t_start, t_end, n_int)
@@ -233,13 +243,12 @@ def testSIR():
 
     sirSim = SIR(SIR0, params, t_sim)
     sirSim.runEvaluation()
-    res, _ = sirSim.getResult()
+    res = sirSim.getResult()
     plt.plot(t_sim, res[:, 0])
     plt.plot(t_sim, res[:, 1])
     plt.plot(t_sim, res[:, 2])
     plt.show()
-    print(res[:, 2][-1])
-    print(np.sum(res[:, 1] * 2 * t_end/n_int))
+    print(sirSim.getDisease()[1])
     #sirSim.plotSeries()
     #print(t_sim[sirSim.getResult()[1]])
     #print(sirSim.getResult())
