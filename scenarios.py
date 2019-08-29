@@ -165,4 +165,88 @@ def getScenario():
 
     #plt.show()
 
-realScenario()
+def eval1():
+    # Originals values
+    N = 1000000
+    SIIR0 = np.zeros(9)
+    SIIR0[1] = 10
+    SIIR0[2] = 10
+    SIIR0[0] = N - np.sum(SIIR0[1:8])
+
+    t_start = 0
+    t_end = 1.3
+    n_int = 10000
+
+    t_sim = np.linspace(t_start, t_end, n_int)
+    #params = [10, 10, 8, 8.7, 10, 10, 8, 8.7]
+    params = [100, 100, 80, 87, 100, 100, 80, 87]
+
+    siirSim_orig = mdl.SIIR(SIIR0, params, t_sim)
+    siirSim_orig.runEvaluation()
+
+    # Smaller
+    #params = [10, 10, 8, 8.7, 40, 40, 8, 8.7]
+    params = [100, 100, 80, 87, 400, 400, 80, 87]
+
+    siirSim_1 = mdl.SIIR(SIIR0, params, t_sim)
+    siirSim_1.runEvaluation()
+
+    fig, ax = plt.subplots(1, 1)
+    #ax.set_yticklabels([])
+    #ax.set_xticklabels([])
+    #ax.tick_params(axis=u'both', which=u'both',length=0)
+    ax.plot(t_sim, siirSim_orig.getDisease1()[0]/N, '-r')
+    ax.plot(t_sim, siirSim_1.getDisease1()[0]/N, '-.r')
+    ax.plot(t_sim, siirSim_orig.getDisease2()[0]/N, '-b')
+    ax.plot(t_sim, siirSim_1.getDisease2()[0]/N, '-.b')
+
+    #ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0), arrowprops=dict(arrowstyle="->"))
+    #ax.arrow(5.21, 19311, 4.66-5.21, 23388-19311,head_width=0.14, head_length=600, length_includes_head = True)
+
+    ax.legend(('Disease1', 'Disease 1 with interaction', 'Disease2', 'Disease2 with interaction'))
+    plt.title("Cooperative Interaction")
+    #plt.show()
+    plt.savefig("/home/polivares/cooperative.png", dpi=900)
+
+def eval2():
+    # Originals values
+    N = 1000000
+    SIIR0 = np.zeros(9)
+    SIIR0[1] = 10
+    SIIR0[2] = 10
+    SIIR0[0] = N - np.sum(SIIR0[1:8])
+
+    t_start = 0
+    t_end = 1.3
+    n_int = 10000
+
+    t_sim = np.linspace(t_start, t_end, n_int)
+    params = [100, 100, 80, 87, 100, 100, 80, 87]
+
+    siirSim_orig = mdl.SIIR(SIIR0, params, t_sim)
+    siirSim_orig.runEvaluation()
+
+    # Smaller
+    params = [100, 100, 80, 87, 0, 0, 80, 87]
+
+    siirSim_1 = mdl.SIIR(SIIR0, params, t_sim)
+    siirSim_1.runEvaluation()
+
+    fig, ax = plt.subplots(1, 1)
+    #ax.set_yticklabels([])
+    #ax.set_xticklabels([])
+    #ax.tick_params(axis=u'both', which=u'both', length=0)
+    ax.plot(t_sim, siirSim_orig.getDisease1()[0]/N, '-r')
+    ax.plot(t_sim, siirSim_1.getDisease1()[0]/N, '-.r')
+    ax.plot(t_sim, siirSim_orig.getDisease2()[0]/N, '-b')
+    ax.plot(t_sim, siirSim_1.getDisease2()[0]/N, '-.b')
+    #ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0), arrowprops=dict(arrowstyle="->"))
+    #ax.arrow(5.21, 19311, 4.66-5.21, 23388-19311,head_width=0.14, head_length=600, length_includes_head = True)
+
+    ax.legend(('Disease1', 'Disease 1 with interaction', 'Disease2', 'Disease2 with interaction'))
+    plt.title("Competitive interaction")
+    #plt.show()
+    plt.savefig("/home/polivares/coompetitive.png", dpi=900)
+
+eval1()
+eval2()

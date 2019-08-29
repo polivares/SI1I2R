@@ -218,14 +218,14 @@ class modelAnalysis:
                 betaprime_arr = np.array([self.params[4]])
 
         fig, ax = plt.subplots(2, 1)
-        siir = mdl.SIIR(self.SIIR0, self.params, self.t_sim)
-        siir.runEvaluation(norm)
-        ax[0].plot(self.t_sim, siir.getDisease1()[0], '-r', label='Original')
-        ax[1].plot(self.t_sim, siir.getDisease2()[0], '-r', label='Original')
+        #siir = mdl.SIIR(self.SIIR0, self.params, self.t_sim)
+        #siir.runEvaluation(norm)
+        #ax[0].plot(self.t_sim, siir.getDisease1()[0], '-r', label='Original')
+        #ax[1].plot(self.t_sim, siir.getDisease2()[0], '-r', label='Original')
 
-        if peak:
-            ax[0].plot(self.t_sim[siir.getDisease1()[1]], siir.getDisease1()[0][siir.getDisease1()[1]], '*k')
-            ax[1].plot(self.t_sim[siir.getDisease2()[1]], siir.getDisease2()[0][siir.getDisease2()[1]], '*k')
+        #if peak:
+        #    ax[0].plot(self.t_sim[siir.getDisease1()[1]], siir.getDisease1()[0][siir.getDisease1()[1]], '*k')
+        #    ax[1].plot(self.t_sim[siir.getDisease2()[1]], siir.getDisease2()[0][siir.getDisease2()[1]], '*k')
 
         params = self.params.copy()
         if fixed == 2:
@@ -312,4 +312,4 @@ def getAnalysis():
     siirSim_orig.plotInfected2D(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False, norm=True)
     siirSim_orig.plotPeakNInfected(beta1prime_arr=np.arange(0, 40, 2), beta2prime_arr=np.arange(0, 40, 2), savefig=False, norm=True)
 
-getAnalysis()
+#getAnalysis()
