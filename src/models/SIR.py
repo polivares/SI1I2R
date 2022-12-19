@@ -5,10 +5,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate as spi
 import peakutils as pk
+# Exceptions from model
+from models.exceptions import NotEvaluatedError
 
 
 class SIR:
-    """ SIR Class that run the original SIR model
+    """SIR Class that run the original SIR model
 
     Attributes:
         SIR0 (list): Initial conditions for the SIR model.
@@ -16,11 +18,10 @@ class SIR:
         t_sim (list): List that includes the time range of the simulation.
         SIR_Res (list): Saves the result of the running SIR model (time series) for the given conditions for all the states.
         peakpos (list): Include the list position of all peaks of the time series result.
-
     """
 
     def __init__(self, SIR0, params, t_sim) -> None:
-        """ Constructor
+        """Constructor
 
         :param SIR0: Initial conditions for the SIR model.
         :type SIR0: list
@@ -34,9 +35,10 @@ class SIR:
         self.t_sim = t_sim
         self.SIR_res = None
         self.peakpos = None
+        self.__evaluated = False  # Internal attribute for checking evaluation made
 
     def __SIR_eqs(self, SIR0, t, params):
-        """ Private method that include the SIR model equations
+        """Private method that include the SIR model equations
 
         :param SIR0: Initial conditions for the SIR model.
         :type SIR0: list
@@ -57,18 +59,27 @@ class SIR:
         N = np.sum(SIR0)
 
         # Parameters of SIR model
-        beta, delta = params
+        beta, gamma = params
 
         # Equations definition of the model
         S = - (beta * Si * Ii) / N
-        I = (beta * Si * Ii) / N - delta * Ii
-        R = delta * Ii
+        I = (beta * Si * Ii) / N - gamma * Ii
+        R = gamma * Ii
 
         return S, I, R
 
+    def __model_evaluated(self):
+        """Private method for running verification before obtaining statistics from model.
+
+        :raises NotEvaluatedError: Exception raise when model has not be executed yet.
+        """
+        if not self.__evaluated:
+            raise NotEvaluatedError(
+                "Evaluation of model must be executed before")
+
     # Configure SIR model with initial conditions, parameters and time
     def __modelSIR(self, SIR0, t, params):
-        """ Private method that configure the SIR model with initial conditions, parameters and time.
+        """Private method that configure the SIR model with initial conditions, parameters and time.
 
         :param SIR0: Initial conditions for the SIR model.
         :type SIR0: list
@@ -80,85 +91,66 @@ class SIR:
         :rtype: 2D-list
         """
         SIR_res = spi.odeint(self.__SIR_eqs, SIR0, t, args=(params,))
+        self.__evaluated = True
         return SIR_res
 
     def run(self, norm=False):
-        """
-        Run the evaluation of the model and saves the result on SIR_Res variable and the peak position of the infection
+        """Run the evaluation of the model and saves the result on SIR_Res variable and the peak position of the infection
         of the disease on peakpos variable.
-        :return: SIR_Res
+
+        :param norm: If True, simulation is executed with normalized values. Defaults to False
+        :type norm: bool, optional
         """
         self.SIR_res = self.__modelSIR(self.SIR0, self.t_sim, self.params)
+        self.__model_evaluated()
         if norm:
             N = np.sum(self.SIR0)
             self.SIR_res = self.SIR_res / N
-            
+
         # Check for peak infection position and save it
         self.peakpos = pk.indexes(self.SIR_tes[:, 1], thres=0.5)
 
     def getResult(self):
+        """Return the result of the evaluation (SIR_res), corresponding to the states 
+        Susceptible, Infection y Recovered.
+
+        Data for each state:
+        S = SIR_res[:, 0] 
+        I = SIR_res[:, 1]
+        R = SIR_res[:, 2]  
+
+        :return: Final result of the evaluation using the SIR equations (SIR_res)
+        :rtype: 2D-list
         """
-        Return the result of the evaluation (SIR_Res) and the peak position of the infection (peakpos)
-        :return: SIR_Res
-        """
+        self.__model_evaluated()
         return self.SIR_res
 
+    def getPeakPos(self):
+        """Return the peak index position of the infection state (I) from disease behavior. This position
+        can be translated to time using t_sim array or to a value using SIR_res[:, 1]
+
+        :return: Peak index position of disease
+        :rtype: int
+        """
+        self.__model_evaluated()
+        return self.peakpos
+
     def getDisease(self):
-        return self.SIR_res[:, 1], self.peakpos
+        """Return a list only including the progress of the infected state.
+
+        :return: List with progress of infected state.
+        :rtype: list
+        """
+        self.__model_evaluated()
+        return self.SIR_res[:, 1]
 
     def getNInfected(self):
-        n_infected = self.SIR_res[:, 2][-1]
+        """Number of people infected at the end of the simulation
+
+        :return: Number of people infected
+        :rtype: float
+        """
+        self.__model_evaluated()
+        # All the recovered plus the still infected people at the last simulation time
+        n_infected = self.SIR_res[:, 2][-1] + self.SIR_res[:, 1][-1]
         return n_infected
-
-    # Plot time series result
-    def plotSeries(self):
-        """
-        Plot the time series of the infected state over time.
-        :return:
-        """
-        plt.plot(self.t_sim, self.SIR_res[:, 1], '-r')
-        plt.show()
-
-
-
-
-def testSIIR():
-
-    beta1 = 5
-    beta1prime = 5
-    delta1 = 1
-    delta1prime = 5
-
-    beta2 = 10
-    beta2prime = 20
-    delta2 = 9.9
-    delta2prime = 9.9
-
-    N = 1000
-
-    t_start = 0
-    t_end = 10
-    n_int = 10000
-
-    t_sim = np.linspace(t_start, t_end, n_int)
-    params = beta1, beta2, delta1, delta2, beta1prime, beta2prime, delta1prime, delta2prime
-
-    SIIR0 = np.zeros(9)
-    SIIR0[1] = 1
-    SIIR0[2] = 1
-    SIIR0[0] = N - np.sum(SIIR0[1:8])
-
-    siirSim = SIIR(SIIR0, params, t_sim)
-    siirSim.runEvaluation(norm=True)
-    # siirSim.plotSeries()
-    # siirSim.plotDisease1Series(savefig=True)
-    # siirSim.plotDisease2Series(savefig=False)
-    print("N infected1: " + str(siirSim.getNInfected1()))
-    res = siirSim.getResult()
-    # dy = np.trapz(res[:, 1] + res[:, 3] + res[:, 7], t_sim)
-    # print("N infected1: " + str(np.sum(dy)))
-    # print("N infected2: " + str(siirSim.getNInfected2()))
-    plt.plot(t_sim, res[:, 0], 'g')
-    plt.plot(t_sim, res[:, 1] + res[:, 3] + res[:, 6], 'r')
-    plt.plot(t_sim, res[:, 4], 'b')
-    plt.show()
