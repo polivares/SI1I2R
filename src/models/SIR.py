@@ -106,9 +106,11 @@ class SIR:
         if norm:
             N = np.sum(self.SIR0)
             self.SIR_res = self.SIR_res / N
-
+        else:
+            self.SIR_res = np.rint(self.SIR_res).astype(int)
+        
         # Check for peak infection position and save it
-        self.peakpos = pk.indexes(self.SIR_tes[:, 1], thres=0.5)
+        self.peakpos = pk.indexes(self.SIR_res[:, 1], thres=0.5)
 
     def getResult(self):
         """Return the result of the evaluation (SIR_res), corresponding to the states 
@@ -126,11 +128,11 @@ class SIR:
         return self.SIR_res
 
     def getPeakPos(self):
-        """Return the peak index position of the infection state (I) from disease behavior. This position
+        """Return the peak indexes position of the infection state (I) from disease behavior. This position
         can be translated to time using t_sim array or to a value using SIR_res[:, 1]
 
         :return: Peak index position of disease
-        :rtype: int
+        :rtype: list
         """
         self.__model_evaluated()
         return self.peakpos
